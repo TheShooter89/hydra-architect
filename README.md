@@ -12,6 +12,23 @@ and verification phases.
 
 ---
 
+## Quick install
+
+```bash
+git clone https://github.com/TheShooter89/hydra-architect && cd hydra-architect && ./install.sh .
+```
+
+This installs Hydra into the current project's `.opencode/`. To install it
+globally into `~/.config/opencode/` so it is available in every project:
+
+```bash
+git clone https://github.com/TheShooter89/hydra-architect && cd hydra-architect && ./install.sh --global
+```
+
+Restart OpenCode when the install finishes.
+
+---
+
 ## Table of contents
 
 1. [Installation](#installation)
@@ -31,6 +48,9 @@ The installer copies agents, commands, the plugin, and the workflow assets into
 an OpenCode config directory. It never touches a target project's root
 `package.json`; the npm dependency is installed inside the OpenCode directory
 itself.
+
+The quickest route is the one-liner in [Quick install](#quick-install) above.
+The commands below assume you have already cloned the repository.
 
 ### Install into the current project
 
@@ -59,6 +79,12 @@ This puts Hydra into `~/.config/opencode/` so it is available in every project.
 ```
 
 This puts Hydra into `/path/to/project/.opencode/`.
+
+### Clone over SSH instead
+
+If you prefer key-based authentication, clone with
+`git@github.com:TheShooter89/hydra-architect.git`. Everything after the clone is
+identical.
 
 ### Overwriting an existing install
 

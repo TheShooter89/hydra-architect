@@ -4,8 +4,13 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 HYDRA_NAME="OpenCode Hydra"
 
-# Absolute resources folder used by the code repo symlink.
+# Local convention: this repo keeps a _RESOURCES symlink next to a sibling
+# resources folder. That layout belongs to one machine, not to every clone, so
+# the symlink is only maintained when the resources folder is already there or
+# when this is the canonical checkout. Otherwise the installer stays out of the
+# way instead of creating a foreign absolute path.
 RESOURCES_DIR="/home/tanque/projects/stable/resources/opencode-hydra"
+CANONICAL_REPO="/home/tanque/projects/stable/code/opencode-hydra"
 
 FORCE=0
 MODE="project"
@@ -73,12 +78,13 @@ case "$MODE" in
     ;;
 esac
 
-# Ensure the shared resources folder exists.
-mkdir -p "$RESOURCES_DIR"
-
-# Ensure the code repo has its _RESOURCES symlink.
+# Maintain the _RESOURCES symlink only when it belongs here.
 if [[ ! -L "$SCRIPT_DIR/_RESOURCES" ]]; then
-  ln -s "$RESOURCES_DIR" "$SCRIPT_DIR/_RESOURCES"
+  if [[ -d "$RESOURCES_DIR" || "$SCRIPT_DIR" == "$CANONICAL_REPO" ]]; then
+    mkdir -p "$RESOURCES_DIR"
+    ln -s "$RESOURCES_DIR" "$SCRIPT_DIR/_RESOURCES"
+    echo "Linked _RESOURCES -> ${RESOURCES_DIR}"
+  fi
 fi
 
 hydra_files_exist() {
