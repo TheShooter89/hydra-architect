@@ -2,15 +2,15 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-HYDRA_NAME="OpenCode Hydra"
+HYDRA_NAME="Hydra Architect"
 
 # Local convention: this repo keeps a _RESOURCES symlink next to a sibling
 # resources folder. That layout belongs to one machine, not to every clone, so
 # the symlink is only maintained when the resources folder is already there or
 # when this is the canonical checkout. Otherwise the installer stays out of the
 # way instead of creating a foreign absolute path.
-RESOURCES_DIR="/home/tanque/projects/stable/resources/opencode-hydra"
-CANONICAL_REPO="/home/tanque/projects/stable/code/opencode-hydra"
+RESOURCES_DIR="/home/tanque/projects/stable/resources/hydra-architect"
+CANONICAL_REPO="/home/tanque/projects/stable/code/hydra-architect"
 
 FORCE=0
 MODE="project"
@@ -111,7 +111,7 @@ cp -R "$SCRIPT_DIR/hydra/workflows/hydra" "$BASE/agents/workflows/"
 # Install the plugin's npm dependency inside the OpenCode config directory,
 # keeping it self-contained and away from the target project's package.json.
 if [[ ! -f "$BASE/package.json" ]]; then
-  printf '{"name":"opencode-hydra-local","version":"1.0.0","private":true,"type":"module"}\n' > "$BASE/package.json"
+  printf '{"name":"hydra-architect-local","version":"1.0.0","private":true,"type":"module"}\n' > "$BASE/package.json"
 fi
 npm install @opencode-ai/plugin --prefix "$BASE"
 

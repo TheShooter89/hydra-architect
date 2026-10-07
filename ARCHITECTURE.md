@@ -5,9 +5,9 @@ agents. One primary agent decomposes a coding task into independent workstreams,
 fans them out to specialised subagents running on different models, and merges
 their results back through review and verification phases.
 
-It lives in this repository as a project-level OpenCode extension:
+Hydra is installed as an OpenCode extension, either into a project's
+`.opencode/` directory or globally into `~/.config/opencode/`:
 
-- Branch: `feat/hydra`
 - Entry point: `/hydra <task>`
 - Control panel: `/hydra-profile <profile|show|diff>`
 

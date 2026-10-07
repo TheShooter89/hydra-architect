@@ -1,12 +1,12 @@
-# OpenCode Hydra
+# Hydra Architect
 
 A standalone, installable OpenCode workflow for parallel-orchestrated coding
 agents. One primary agent decomposes a task, fans it out to specialised
 subagents running on different models, and merges the results through review
 and verification phases.
 
-- **Repository:** `/home/tanque/projects/stable/code/opencode-hydra/`
-- **Resources:** `/home/tanque/projects/stable/resources/opencode-hydra/`
+- **Repository:** `/home/tanque/projects/stable/code/hydra-architect/`
+- **Resources:** `/home/tanque/projects/stable/resources/hydra-architect/`
 - **Entry point:** `/hydra <task>`
 - **Control panel:** `/hydra-profile <profile|show|diff>`
 
@@ -256,14 +256,14 @@ the plugin from `opencode.json`. It leaves npm artifacts (`node_modules`,
 ### Project layout
 
 ```text
-opencode-hydra/
+hydra-architect/
 ├── README.md
 ├── ARCHITECTURE.md
 ├── Makefile
 ├── install.sh
 ├── uninstall.sh
 ├── .gitignore
-├── _RESOURCES -> /home/tanque/projects/stable/resources/opencode-hydra/
+├── _RESOURCES -> /home/tanque/projects/stable/resources/hydra-architect/
 └── hydra/
     ├── agents/
     ├── commands/
@@ -281,7 +281,7 @@ opencode-hydra/
 make test-install
 ```
 
-This installs into `/tmp/opencode-hydra-test` and then uninstalls, verifying
+This installs into `/tmp/hydra-architect-test` and then uninstalls, verifying
 that both scripts run cleanly.
 
 ### Adding a role

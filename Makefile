@@ -10,7 +10,7 @@ uninstall:
 	./uninstall.sh .
 
 test-install:
-	rm -rf /tmp/opencode-hydra-test
-	mkdir -p /tmp/opencode-hydra-test
-	./install.sh --target /tmp/opencode-hydra-test
-	./uninstall.sh --force --target /tmp/opencode-hydra-test
+	rm -rf /tmp/hydra-architect-test
+	mkdir -p /tmp/hydra-architect-test
+	./install.sh --target /tmp/hydra-architect-test
+	./uninstall.sh --force --target /tmp/hydra-architect-test

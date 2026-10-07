@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-HYDRA_NAME="OpenCode Hydra"
+HYDRA_NAME="Hydra Architect"
 
 FORCE=0
 MODE="project"

@@ -1,4 +1,4 @@
-// OpenCode Hydra plugin
+// Hydra Architect plugin for OpenCode
 // Resolves the active model profile, injects models and prompts into Hydra
 // agents, and exposes tools for profile management and Jev decision support.
 
