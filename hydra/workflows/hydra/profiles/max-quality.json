@@ -1,0 +1,22 @@
+{
+  "name": "max-quality",
+  "description": "Use the strongest appropriate models for high-risk or important work.",
+  "extends": "default",
+  "roles": {
+    "architect": "opencode/<max-quality-architect-model>",
+    "implementer": "opencode/<max-quality-implementer-model>",
+    "security-reviewer": "opencode/<max-quality-security-reviewer-model>",
+    "adjudicator": "opencode/<max-quality-adjudicator-model>",
+    "final-verifier": "opencode/<max-quality-final-verifier-model>"
+  },
+  "jev": {
+    "model": "jev-1.13"
+  },
+  "policy": {
+    "allow_paid_models": true,
+    "allow_preview_models": false,
+    "require_explicit_free_models": false,
+    "require_independent_review": true,
+    "require_final_verification": true
+  }
+}

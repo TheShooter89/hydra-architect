@@ -1,0 +1,27 @@
+{
+  "name": "default",
+  "description": "Balanced quality/cost production profile.",
+  "extends": null,
+  "roles": {
+    "orchestrator": "opencode/<default-orchestrator-model>",
+    "explorer": "opencode/<default-explorer-model>",
+    "researcher": "opencode/<default-researcher-model>",
+    "test-scout": "opencode/<default-test-scout-model>",
+    "architect": "opencode/<default-architect-model>",
+    "implementer": "opencode/<default-implementer-model>",
+    "code-reviewer": "opencode/<default-code-reviewer-model>",
+    "security-reviewer": "opencode/<default-security-reviewer-model>",
+    "test-reviewer": "opencode/<default-test-reviewer-model>",
+    "adjudicator": "opencode/<default-adjudicator-model>",
+    "final-verifier": "opencode/<default-final-verifier-model>"
+  },
+  "jev": {
+    "model": "jev-1.13"
+  },
+  "policy": {
+    "allow_paid_models": true,
+    "allow_preview_models": false,
+    "require_explicit_free_models": false,
+    "verified_free_models": []
+  }
+}

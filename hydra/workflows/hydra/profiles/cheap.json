@@ -1,0 +1,20 @@
+{
+  "name": "cheap",
+  "description": "Reduce cost while keeping quality where it matters.",
+  "extends": "default",
+  "roles": {
+    "explorer": "opencode/<cheap-explorer-model>",
+    "researcher": "opencode/<cheap-researcher-model>",
+    "test-scout": "opencode/<cheap-test-scout-model>",
+    "code-reviewer": "opencode/<cheap-code-reviewer-model>",
+    "test-reviewer": "opencode/<cheap-test-reviewer-model>"
+  },
+  "jev": {
+    "model": "jev-1.13"
+  },
+  "policy": {
+    "allow_paid_models": true,
+    "allow_preview_models": false,
+    "require_explicit_free_models": false
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "free-week",
+  "description": "Temporary experimental overrides for preview/free models.",
+  "extends": "default",
+  "roles": {
+    "architect": "opencode/<preview-model>",
+    "implementer": "opencode/<preview-model>",
+    "adjudicator": "opencode/<preview-model>",
+    "final-verifier": "opencode/<preview-model>"
+  },
+  "jev": {
+    "model": "jev-1.13"
+  },
+  "policy": {
+    "allow_paid_models": true,
+    "allow_preview_models": true,
+    "require_explicit_free_models": false,
+    "require_independent_review": true,
+    "require_final_verification": true,
+    "allow_security_downgrade": false
+  }
+}

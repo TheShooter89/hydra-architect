@@ -1,0 +1,40 @@
+{
+  "name": "free",
+  "description": "Zero-cost development using only explicitly verified free models.",
+  "extends": null,
+  "roles": {
+    "orchestrator": "opencode/<free-orchestrator-model>",
+    "explorer": "opencode/<free-explorer-model>",
+    "researcher": "opencode/<free-researcher-model>",
+    "test-scout": "opencode/<free-test-scout-model>",
+    "architect": "opencode/<free-architect-model>",
+    "implementer": "opencode/<free-implementer-model>",
+    "code-reviewer": "opencode/<free-code-reviewer-model>",
+    "security-reviewer": "opencode/<free-security-reviewer-model>",
+    "test-reviewer": "opencode/<free-test-reviewer-model>",
+    "adjudicator": "opencode/<free-adjudicator-model>",
+    "final-verifier": "opencode/<free-final-verifier-model>"
+  },
+  "jev": {
+    "model": "jev-1.13-free"
+  },
+  "policy": {
+    "allow_paid_models": false,
+    "allow_preview_models": false,
+    "require_explicit_free_models": true,
+    "fail_if_model_is_not_verified_free": true,
+    "verified_free_models": [
+      "opencode/<free-orchestrator-model>",
+      "opencode/<free-explorer-model>",
+      "opencode/<free-researcher-model>",
+      "opencode/<free-test-scout-model>",
+      "opencode/<free-architect-model>",
+      "opencode/<free-implementer-model>",
+      "opencode/<free-code-reviewer-model>",
+      "opencode/<free-security-reviewer-model>",
+      "opencode/<free-test-reviewer-model>",
+      "opencode/<free-adjudicator-model>",
+      "opencode/<free-final-verifier-model>"
+    ]
+  }
+}
