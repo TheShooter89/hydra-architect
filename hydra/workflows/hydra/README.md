@@ -9,8 +9,8 @@ This folder contains the Hydra multi-agent coding swarm.
 - `prompts/` — orchestration and subagent prompts.
 - `scripts/` — Python helpers:
   - `resolve_profile.py` resolves profile inheritance, validates policy, and produces the effective role→model mapping.
-  - `jev.py` is the Jev client; it reads credentials from `.env`.
-- `.env` (ignored) — Jev endpoint and token. Copy `.env.example` to `.env` and fill it in.
+  - `jev.py` calls OpenCode Zen System One, resolves the model from the active profile, and reuses the saved OpenCode Zen credential when no token override is set.
+- `.env` (ignored, optional) — Jev endpoint/token/model overrides. Normally no Jev-specific setup is needed if OpenCode Zen is connected.
 
 ## Adding a new workflow
 

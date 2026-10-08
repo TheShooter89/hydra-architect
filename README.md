@@ -153,22 +153,45 @@ refuse to run.
 
 ---
 
-## Jev credentials
+## Jev and OpenCode credentials
 
-Copy the example env file in the installed workflow folder and fill it in:
+Hydra uses OpenCode Zen's System One endpoint for Jev:
+`https://opencode.ai/zen/v1/systemone`. If OpenCode Zen is already connected,
+Hydra reuses the `opencode` credential in
+`~/.local/share/opencode/auth.json`. **No second key or manual token copy is
+needed.** The credential is read locally and is never printed or copied into
+Hydra's files.
+
+OpenCode Go is a separate provider and its subscription does not include the
+System One Jev endpoint. Hydra deliberately does not send the Go credential to
+the Zen Jev endpoint. Jev `jev-1.13` is billed through Zen; `jev-1.13-free` is
+listed as a limited-time free model. The Jev model is selected by each profile's
+`jev.model` field (`profiles/free.json` already selects `jev-1.13-free`).
+
+No `.env` file is required. Create one only to override defaults:
 
 ```bash
 cp .opencode/agents/workflows/hydra/.env.example \
    .opencode/agents/workflows/hydra/.env
 ```
 
+Uncomment and set only the values you need:
+
 ```dotenv
-JEV_ENDPOINT=
-JEV_API_TOKEN=
+# JEV_ENDPOINT=https://opencode.ai/zen/v1/systemone
+# Optional token override; unnecessary when the saved Zen credential is present.
+# JEV_API_TOKEN=
+# Set JEV_MODEL to override the active profile's jev.model.
+# JEV_MODEL=jev-1.13
+# OPENCODE_AUTH_FILE=/path/to/opencode/auth.json
+# XDG_DATA_HOME=/path/to/share
 ```
 
-The `.env` file is gitignored. Until credentials are present, `jev.py` returns a
-deterministic placeholder response so the workflow can still be tested.
+`JEV_API_TOKEN` can be supplied via the environment or `.env`; it is not
+necessary when the OpenCode Zen credential is present. The `.env` file is
+gitignored. If neither a token override nor the saved Zen credential is
+available, Jev returns a marked placeholder response so the workflow can still
+be tested without treating the placeholder as a real signal.
 
 ---
 

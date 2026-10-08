@@ -477,7 +477,7 @@ authentication, batching, and the placeholder fallback.
 |------|-----------|---------|
 | `hydra_profile` | `action` (`set` \| `show` \| `diff`), `profile`, `other` | Human-readable role→model table or diff |
 | `hydra_resolve` | none | Effective profile as JSON, including policy and Jev model |
-| `hydra_jev` | `questions` (object of name → question text) | Structured answers per question |
+| `hydra_jev` | `state`; `questions` (ID → typed `noul`/`choice`/`score` question) | Normalized typed answers, usage, and any per-question errors |
 
 ---
 
@@ -503,19 +503,62 @@ concentration of risk, but it cannot overrule a failing test.
 
 ### Where Jev is called
 
-| Phase | Question batch |
-|-------|----------------|
-| 2 — Classification | `task_type`, `risk_level`, `affected_surface`, `recommended_tier` |
-| 4 — Architecture checkpoint | `best_candidate`, `regression_risk`, `migration_risk`, `change_surface`, `reversibility`, `performance_risk`, `needs_deeper_review` |
-| 5 — Implementer micro-decisions | modify existing helper vs. introduce a new one, unrelated-caller risk, extra test needed, escalate to architect |
-| 7 — Review triage | `critical_issues`, `security_concerns`, `test_gaps` |
+| Phase | State supplied | Typed question batch |
+|-------|---------------|-----------------------|
+| 2 — Classification | User request plus concise reconnaissance findings | `task_type`, `risk_level`, `affected_surface`, `recommended_tier` (closed-set `choice`s) |
+| 4 — Architecture checkpoint | Candidate designs, constraints, and relevant reconnaissance | Candidate-specific regression/migration/surface/reversibility/performance risk and review need; `best_candidate` (`choice`) |
+| 5 — Implementer micro-decisions | Relevant code, callers, and proposed change | Reuse helper, unrelated-caller risk, extra test, or escalation (`noul`/`choice`) when needed |
+| 7 — Review triage | Review reports and deterministic test/compiler results | Critical/security concern (`noul`) and test-gap severity (`choice`) |
 
 Batching matters: Jev evaluates multiple questions in a single request in
-parallel, so one call per phase is far cheaper than six sequential calls.
+parallel, so one call per phase is far cheaper than six sequential calls. Each
+question is a typed object with `type`, `instructions`, and (for `choice` and
+`score`) `criteria`; open-ended string questions are not sent to System One.
+
+### Request/response path
+
+The agent calls the plugin's `hydra_jev` tool with `state` and a map of typed
+questions. The plugin sends both to `scripts/jev.py` over stdin JSON (avoiding
+command-line size limits). The Python client resolves the model from the active
+profile's `jev.model` (default `jev-1.13`), builds the System One payload, and
+posts it to Zen. The successful response is returned to the agent as JSON:
+
+```json
+{
+  "model": "jev-1.13.0",
+  "source": "zen-systemone",
+  "answers": {
+    "risk_level": {
+      "type": "choice",
+      "choice": "medium",
+      "answer": "medium",
+      "value": "medium",
+      "probabilities": {"low": 0.1, "medium": 0.8, "high": 0.1},
+      "confidence": 0.7
+    }
+  },
+  "usage": {"input_tokens": 318, "output_tokens": 34}
+}
+```
+
+The client preserves Jev's typed fields and adds common `answer` / `value`
+aliases. For `noul`, `noul` is the probability of yes; no separate confidence
+value is invented. For `choice` and `score`, the API's `confidence` and
+probability distribution are preserved. Invalid legacy questions or missing
+answer entries are surfaced in `errors`; transient HTTP errors (429 and 5xx) are
+retried.
 
 ### Credentials
 
-Jev reads its endpoint and token from an env file, not from the profile JSONs:
+The default endpoint is `https://opencode.ai/zen/v1/systemone`. The client uses
+the existing OpenCode Zen credential in `~/.local/share/opencode/auth.json`
+under the `opencode` provider; it does not use the separate `opencode-go` key.
+No Jev-specific key needs to be created or copied. Token precedence is
+`JEV_API_TOKEN`, `OPENCODE_API_KEY`, then the saved Zen credential. The model
+can be overridden with `JEV_MODEL`; otherwise it comes from `jev.model` in the
+active profile.
+
+An optional `.env` can override endpoint, token, or model:
 
 ```bash
 cp .opencode/agents/workflows/hydra/.env.example \
@@ -523,13 +566,17 @@ cp .opencode/agents/workflows/hydra/.env.example \
 ```
 
 ```dotenv
-JEV_ENDPOINT=
-JEV_API_TOKEN=
+# JEV_ENDPOINT=https://opencode.ai/zen/v1/systemone
+# JEV_API_TOKEN=
+# JEV_MODEL=jev-1.13
 ```
 
-The `.env` file is gitignored. Until it exists, `jev.py` returns a
-deterministic placeholder response per question, so the whole workflow still
-runs end to end during development.
+`jev-1.13` is billed through Zen rather than the OpenCode Go subscription;
+`jev-1.13-free` is listed as a limited-time free Jev model. The `free` profile
+already selects it. The `.env` file is gitignored. If no Zen credential is
+available, `jev.py` returns a deterministic response marked
+`"source":"placeholder"`, which the prompts instruct agents to ignore as a
+decision signal.
 
 ---
 
@@ -632,7 +679,8 @@ python3 .opencode/agents/workflows/hydra/scripts/resolve_profile.py --active
 python3 .opencode/agents/workflows/hydra/scripts/resolve_profile.py --show free
 python3 .opencode/agents/workflows/hydra/scripts/resolve_profile.py --diff default free-week
 python3 .opencode/agents/workflows/hydra/scripts/jev.py \
-  --questions '{"task_type":"feature or bugfix?","risk_level":"low/medium/high?"}'
+  --state "A new API endpoint is being added with tests." \
+  --questions '{"risk_level":{"type":"choice","instructions":"Estimate regression risk.","criteria":{"low":"Narrow and reversible","medium":"Several components affected","high":"Broad or hard to reverse"}}}'
 ```
 
 ---

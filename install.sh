@@ -101,12 +101,34 @@ fi
 
 mkdir -p "$BASE/agents" "$BASE/commands" "$BASE/plugins" "$BASE/agents/workflows"
 
+# Preserve local Jev overrides when refreshing the workflow. The example is
+# copied with the workflow, but a real .env may contain user-specific settings.
+JEV_ENV_PATH="$BASE/agents/workflows/hydra/.env"
+JEV_ENV_BACKUP=""
+cleanup_jev_env_backup() {
+  if [[ -n "$JEV_ENV_BACKUP" ]]; then
+    if [[ -f "$JEV_ENV_BACKUP" && ! -e "$JEV_ENV_PATH" ]]; then
+      mkdir -p "$(dirname "$JEV_ENV_PATH")" 2>/dev/null || true
+      cp "$JEV_ENV_BACKUP" "$JEV_ENV_PATH" 2>/dev/null || true
+    fi
+    rm -f "$JEV_ENV_BACKUP"
+  fi
+}
+trap cleanup_jev_env_backup EXIT
+if [[ -f "$JEV_ENV_PATH" ]]; then
+  JEV_ENV_BACKUP="$(mktemp)"
+  cp "$JEV_ENV_PATH" "$JEV_ENV_BACKUP"
+fi
+
 # Copy Hydra workflow files.
 cp -R "$SCRIPT_DIR/hydra/agents/"* "$BASE/agents/"
 cp -R "$SCRIPT_DIR/hydra/commands/"* "$BASE/commands/"
 cp "$SCRIPT_DIR/hydra/plugins/hydra.js" "$BASE/plugins/"
 rm -rf "$BASE/agents/workflows/hydra"
 cp -R "$SCRIPT_DIR/hydra/workflows/hydra" "$BASE/agents/workflows/"
+if [[ -n "$JEV_ENV_BACKUP" ]]; then
+  cp "$JEV_ENV_BACKUP" "$JEV_ENV_PATH"
+fi
 
 # Install the plugin's npm dependency inside the OpenCode config directory,
 # keeping it self-contained and away from the target project's package.json.

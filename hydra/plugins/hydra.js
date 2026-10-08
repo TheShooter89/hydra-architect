@@ -22,6 +22,15 @@ const ROLES = [
   "final-verifier",
 ];
 
+const jevQuestionSchema = tool.schema.union([
+  tool.schema.string(),
+  tool.schema.object({
+    type: tool.schema.enum(["noul", "choice", "score"]),
+    instructions: tool.schema.any(),
+    criteria: tool.schema.any().optional(),
+  }),
+]);
+
 function findHydraRoot(directory) {
   const local = join(directory, ".opencode", "agents", "workflows", "hydra");
   if (existsSync(local)) return local;
@@ -62,13 +71,18 @@ function runPython(directory, ...args) {
   return JSON.parse(result.stdout);
 }
 
-function runJev(directory, questions) {
+function runJev(directory, state, questions) {
   const script = hydraPath(directory, "scripts", "jev.py");
-  const result = spawnSync("python3", [script, "--questions", JSON.stringify(questions)], {
+  const result = spawnSync("python3", [script, "--stdin-json"], {
     cwd: directory,
     encoding: "utf8",
-    timeout: 120000,
+    input: JSON.stringify({ state, questions }),
+    timeout: 135000,
+    maxBuffer: 10 * 1024 * 1024,
   });
+  if (result.error) {
+    throw new Error(result.error.message);
+  }
   if (result.status !== 0) {
     throw new Error((result.stderr || result.stdout || "jev.py failed").trim());
   }
@@ -223,14 +237,17 @@ export default async ({ directory }) => {
       }),
 
       hydra_jev: tool({
-        description: "Ask Jev a batch of typed questions and get structured answers.",
+        description: "Evaluate typed questions against state with Jev and return structured answers.",
         args: {
+          state: tool.schema
+            .string()
+            .describe("Relevant context Jev evaluates; include the request and concise evidence"),
           questions: tool.schema
-            .record(tool.schema.string())
-            .describe("JSON object mapping question names to question text"),
+            .record(tool.schema.string(), jevQuestionSchema)
+            .describe("Map of question IDs to typed Jev questions (noul, choice, or score)"),
         },
         async execute(args) {
-          const output = runJev(directory, args.questions);
+          const output = runJev(directory, args.state, args.questions);
           return {
             title: "Jev response",
             output,

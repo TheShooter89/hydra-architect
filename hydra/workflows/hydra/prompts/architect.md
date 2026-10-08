@@ -29,7 +29,13 @@ Produce a design document with:
 
 ## Jev checkpoint
 
-The orchestrator will call `hydra_jev` on your candidates. Incorporate those structured signals into your final recommendation, but do not let Jev override tests, compiler output, or your own engineering reasoning.
+The orchestrator will call `hydra_jev` with the candidates and constraints in
+`state`, using typed `choice`, `score`, or `noul` questions for candidate
+selection and risk dimensions. Read Jev's answers, probabilities, and confidence
+where provided; a `noul` answer is a yes-probability and has no separate
+confidence field. Treat placeholder responses and per-question errors as
+unavailable signals. Incorporate valid signals into your recommendation, but do
+not let Jev override tests, compiler output, or your own engineering reasoning.
 
 ## Constraints
 
