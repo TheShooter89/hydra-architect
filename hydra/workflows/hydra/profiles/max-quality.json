@@ -2,12 +2,11 @@
   "name": "max-quality",
   "description": "Use the strongest appropriate models for high-risk or important work.",
   "extends": "default",
-  "roles": {
-    "architect": "opencode/<max-quality-architect-model>",
-    "implementer": "opencode/<max-quality-implementer-model>",
-    "security-reviewer": "opencode/<max-quality-security-reviewer-model>",
-    "adjudicator": "opencode/<max-quality-adjudicator-model>",
-    "final-verifier": "opencode/<max-quality-final-verifier-model>"
+  "tier_overrides": {
+    "reasoning-heavy": "opencode-go/grok-4.7",
+    "context-deep": "opencode-go/grok-4.7",
+    "review-efficient": "opencode-go/kimi-k2.7-code",
+    "cheap-general": "opencode-go/kimi-k2.7-code"
   },
   "jev": {
     "model": "jev-1.13"

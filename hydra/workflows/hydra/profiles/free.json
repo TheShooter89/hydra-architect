@@ -2,39 +2,34 @@
   "name": "free",
   "description": "Zero-cost development using only explicitly verified free models.",
   "extends": null,
+  "tiers": {
+    "free-elite": "opencode-go/step-5-preview-free",
+    "free-coding": "opencode-go/longcat-2.5-preview-free"
+  },
   "roles": {
-    "orchestrator": "opencode/<free-orchestrator-model>",
-    "explorer": "opencode/<free-explorer-model>",
-    "researcher": "opencode/<free-researcher-model>",
-    "test-scout": "opencode/<free-test-scout-model>",
-    "architect": "opencode/<free-architect-model>",
-    "implementer": "opencode/<free-implementer-model>",
-    "code-reviewer": "opencode/<free-code-reviewer-model>",
-    "security-reviewer": "opencode/<free-security-reviewer-model>",
-    "test-reviewer": "opencode/<free-test-reviewer-model>",
-    "adjudicator": "opencode/<free-adjudicator-model>",
-    "final-verifier": "opencode/<free-final-verifier-model>"
+    "orchestrator": "free-elite",
+    "explorer": "free-coding",
+    "researcher": "free-coding",
+    "test-scout": "free-coding",
+    "architect": "free-elite",
+    "implementer": "free-coding",
+    "code-reviewer": "free-coding",
+    "security-reviewer": "free-elite",
+    "test-reviewer": "free-coding",
+    "adjudicator": "free-elite",
+    "final-verifier": "free-coding"
   },
   "jev": {
     "model": "jev-1.13-free"
   },
   "policy": {
     "allow_paid_models": false,
-    "allow_preview_models": false,
+    "allow_preview_models": true,
     "require_explicit_free_models": true,
     "fail_if_model_is_not_verified_free": true,
     "verified_free_models": [
-      "opencode/<free-orchestrator-model>",
-      "opencode/<free-explorer-model>",
-      "opencode/<free-researcher-model>",
-      "opencode/<free-test-scout-model>",
-      "opencode/<free-architect-model>",
-      "opencode/<free-implementer-model>",
-      "opencode/<free-code-reviewer-model>",
-      "opencode/<free-security-reviewer-model>",
-      "opencode/<free-test-reviewer-model>",
-      "opencode/<free-adjudicator-model>",
-      "opencode/<free-final-verifier-model>"
+      "opencode-go/step-5-preview-free",
+      "opencode-go/longcat-2.5-preview-free"
     ]
   }
 }

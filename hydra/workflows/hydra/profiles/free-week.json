@@ -3,10 +3,10 @@
   "description": "Temporary experimental overrides for preview/free models.",
   "extends": "default",
   "roles": {
-    "architect": "opencode/<preview-model>",
-    "implementer": "opencode/<preview-model>",
-    "adjudicator": "opencode/<preview-model>",
-    "final-verifier": "opencode/<preview-model>"
+    "architect": "opencode-go/step-5-preview-free",
+    "implementer": "opencode-go/longcat-2.5-preview-free",
+    "adjudicator": "opencode-go/step-5-preview-free",
+    "final-verifier": "opencode-go/longcat-2.5-preview-free"
   },
   "jev": {
     "model": "jev-1.13"

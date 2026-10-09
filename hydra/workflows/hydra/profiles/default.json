@@ -2,18 +2,26 @@
   "name": "default",
   "description": "Balanced quality/cost production profile.",
   "extends": null,
+  "tiers": {
+    "elite": "opencode-go/kimi-k3",
+    "coding-heavy": "opencode-go/kimi-k2.7-code",
+    "reasoning-heavy": "opencode-go/qwen3.7-plus",
+    "review-efficient": "opencode-go/deepseek-v4.1-flash",
+    "cheap-general": "opencode-go/mimo-v2.6-flash",
+    "context-deep": "opencode-go/longcat-2.0"
+  },
   "roles": {
-    "orchestrator": "opencode/<default-orchestrator-model>",
-    "explorer": "opencode/<default-explorer-model>",
-    "researcher": "opencode/<default-researcher-model>",
-    "test-scout": "opencode/<default-test-scout-model>",
-    "architect": "opencode/<default-architect-model>",
-    "implementer": "opencode/<default-implementer-model>",
-    "code-reviewer": "opencode/<default-code-reviewer-model>",
-    "security-reviewer": "opencode/<default-security-reviewer-model>",
-    "test-reviewer": "opencode/<default-test-reviewer-model>",
-    "adjudicator": "opencode/<default-adjudicator-model>",
-    "final-verifier": "opencode/<default-final-verifier-model>"
+    "orchestrator": "reasoning-heavy",
+    "explorer": "coding-heavy",
+    "researcher": "context-deep",
+    "test-scout": "review-efficient",
+    "architect": "elite",
+    "implementer": "coding-heavy",
+    "code-reviewer": "coding-heavy",
+    "security-reviewer": "elite",
+    "test-reviewer": "review-efficient",
+    "adjudicator": "reasoning-heavy",
+    "final-verifier": "cheap-general"
   },
   "jev": {
     "model": "jev-1.13"

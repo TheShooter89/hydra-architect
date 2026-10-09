@@ -2,12 +2,10 @@
   "name": "cheap",
   "description": "Reduce cost while keeping quality where it matters.",
   "extends": "default",
-  "roles": {
-    "explorer": "opencode/<cheap-explorer-model>",
-    "researcher": "opencode/<cheap-researcher-model>",
-    "test-scout": "opencode/<cheap-test-scout-model>",
-    "code-reviewer": "opencode/<cheap-code-reviewer-model>",
-    "test-reviewer": "opencode/<cheap-test-reviewer-model>"
+  "tier_overrides": {
+    "elite": "opencode-go/qwen3.7-plus",
+    "coding-heavy": "opencode-go/deepseek-v4.1-flash",
+    "review-efficient": "opencode-go/mimo-v2.6-flash"
   },
   "jev": {
     "model": "jev-1.13"
