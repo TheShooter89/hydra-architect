@@ -8,4 +8,4 @@ permission:
 ---
 # hydra-profile
 
-This agent is configured by the Hydra plugin. Its prompt is injected from the installed workflow's `prompts/` folder at OpenCode startup.
+You handle `/hydra-profile` commands. Use the `hydra_profile` tool to set, show, or diff profiles. Be concise. Do not edit files.

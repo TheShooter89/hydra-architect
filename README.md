@@ -1,14 +1,12 @@
 # Hydra Architect
 
-A standalone, installable OpenCode workflow for parallel-orchestrated coding
-agents. One primary agent decomposes a task, fans it out to specialised
-subagents running on different models, and merges the results through review
-and verification phases.
+A standalone, installable OpenCode skill and agent workflow for parallel-orchestrated coding agents. A primary agent decomposes a task, fans it out to specialised subagents running on different models, and merges the results through review and verification phases.
 
 - **Repository:** `/home/tanque/projects/stable/code/hydra-architect/`
 - **Resources:** `/home/tanque/projects/stable/resources/hydra-architect/`
-- **Entry point:** `/hydra <task>`
+- **Entry points:** `/hydra <task>` or select the `hydra` agent and describe a task
 - **Control panel:** `/hydra-profile <profile|show|diff>`
+- **Skill:** `.opencode/skills/hydra/SKILL.md`
 
 ---
 
@@ -44,10 +42,7 @@ Restart OpenCode when the install finishes.
 
 ## Installation
 
-The installer copies agents, commands, the plugin, and the workflow assets into
-an OpenCode config directory. It never touches a target project's root
-`package.json`; the npm dependency is installed inside the OpenCode directory
-itself.
+The installer copies the Hydra skill, agents, commands, the plugin, and the workflow assets into an OpenCode config directory. It never touches a target project's root `package.json`; the npm dependency is installed inside the OpenCode directory itself.
 
 The quickest route is the one-liner in [Quick install](#quick-install) above.
 The commands below assume you have already cloned the repository.
@@ -101,12 +96,11 @@ By default the installer asks before overwriting. To force:
 1. Copies `hydra/agents/*` into the target `agents/` directory.
 2. Copies `hydra/commands/*` into the target `commands/` directory.
 3. Copies `hydra/plugins/hydra.js` into the target `plugins/` directory.
-4. Copies `hydra/workflows/hydra/` into the target `agents/workflows/hydra/`
-   directory.
-5. Runs `npm install @opencode-ai/plugin` inside the target OpenCode
-   directory, keeping `node_modules` and `package.json` self-contained there.
-6. Registers `.opencode/plugins/hydra.js` in the target `opencode.json`.
-7. Ensures npm artifacts are gitignored inside the OpenCode directory.
+4. Copies `hydra/workflows/hydra/` into the target `agents/workflows/hydra/` directory.
+5. Copies `hydra/skills/hydra/` into the target `skills/hydra/` directory.
+6. Runs `npm install @opencode-ai/plugin` inside the target OpenCode directory, keeping `node_modules` and `package.json` self-contained there.
+7. Registers `.opencode/plugins/hydra.js` and the skill path in the target `opencode.json`.
+8. Ensures npm artifacts are gitignored inside the OpenCode directory.
 
 Restart OpenCode after installation.
 
@@ -197,8 +191,7 @@ be tested without treating the placeholder as a real signal.
 
 ## Architecture overview
 
-Hydra runs ten phases. Reconnaissance and review fan out in parallel; the rest
-are sequential.
+Hydra runs ten phases defined in the `hydra` skill. Reconnaissance and review fan out in parallel via the `task` tool; the rest are sequential. The skill includes explicit anti-loop guards: it never invokes `/hydra` recursively, it tracks the current phase, and each subagent runs exactly once per phase.
 
 ```mermaid
 flowchart TD
@@ -291,6 +284,9 @@ hydra-architect/
     ├── agents/
     ├── commands/
     ├── plugins/
+    ├── skills/
+    │   └── hydra/
+    │       └── SKILL.md
     └── workflows/
         └── hydra/
             ├── profiles/
@@ -310,10 +306,9 @@ that both scripts run cleanly.
 ### Adding a role
 
 1. Add `.opencode/agents/hydra-<role>.md` in the source tree.
-2. Add `hydra/workflows/hydra/prompts/<role>.md`.
+2. Add the role's task contract to `hydra/skills/hydra/SKILL.md`.
 3. Add the role to the `ROLES` array in `hydra/plugins/hydra.js`.
 4. Add the role to every profile JSON.
-5. Reference the role in `prompts/orchestrator.md`.
 
 ### Adding a profile
 

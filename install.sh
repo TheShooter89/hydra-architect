@@ -88,7 +88,7 @@ if [[ ! -L "$SCRIPT_DIR/_RESOURCES" ]]; then
 fi
 
 hydra_files_exist() {
-  [[ -d "$BASE/agents/workflows/hydra" ]] || [[ -f "$BASE/plugins/hydra.js" ]]
+  [[ -d "$BASE/agents/workflows/hydra" ]] || [[ -f "$BASE/plugins/hydra.js" ]] || [[ -d "$BASE/skills/hydra" ]]
 }
 
 if hydra_files_exist && [[ "$FORCE" -eq 0 ]]; then
@@ -99,7 +99,7 @@ if hydra_files_exist && [[ "$FORCE" -eq 0 ]]; then
   fi
 fi
 
-mkdir -p "$BASE/agents" "$BASE/commands" "$BASE/plugins" "$BASE/agents/workflows"
+mkdir -p "$BASE/agents" "$BASE/commands" "$BASE/plugins" "$BASE/agents/workflows" "$BASE/skills"
 
 # Preserve local Jev overrides when refreshing the workflow. The example is
 # copied with the workflow, but a real .env may contain user-specific settings.
@@ -129,6 +129,10 @@ cp -R "$SCRIPT_DIR/hydra/workflows/hydra" "$BASE/agents/workflows/"
 if [[ -n "$JEV_ENV_BACKUP" ]]; then
   cp "$JEV_ENV_BACKUP" "$JEV_ENV_PATH"
 fi
+
+# Copy Hydra skill.
+rm -rf "$BASE/skills/hydra"
+cp -R "$SCRIPT_DIR/hydra/skills/hydra" "$BASE/skills/"
 
 # Install the plugin's npm dependency inside the OpenCode config directory,
 # keeping it self-contained and away from the target project's package.json.
@@ -169,6 +173,19 @@ if (!cfg.plugin.includes(entry)) cfg.plugin.push(entry);
 fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
 ' "$OPENCODE_JSON"
 
+# Register the Hydra skill path in opencode.json.
+node -e '
+const fs = require("fs");
+const path = process.argv[1];
+const mode = process.argv[2];
+const cfg = JSON.parse(fs.readFileSync(path, "utf8"));
+cfg.skills = cfg.skills || {};
+cfg.skills.paths = cfg.skills.paths || [];
+const skillPath = mode === "global" ? "~/.config/opencode/skills" : ".opencode/skills";
+if (!cfg.skills.paths.includes(skillPath)) cfg.skills.paths.push(skillPath);
+fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
+' "$OPENCODE_JSON" "$MODE"
+
 cat <<EOF
 
 ${HYDRA_NAME} installed to ${BASE}
@@ -176,10 +193,11 @@ ${HYDRA_NAME} installed to ${BASE}
 Next steps:
   1. Replace placeholder model IDs in ${BASE}/agents/workflows/hydra/profiles/
   2. Copy ${BASE}/agents/workflows/hydra/.env.example to .env and fill JEV_ENDPOINT / JEV_API_TOKEN
-  3. Restart OpenCode for agents, commands, and the plugin to load
+  3. Restart OpenCode for agents, skills, commands, and the plugin to load
 
 Useful commands:
   /hydra <task>
+  Tab-select the "hydra" agent and describe a task
   /hydra-profile show
   /hydra-profile default | cheap | free | max-quality | free-week
 

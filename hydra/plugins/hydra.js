@@ -1,6 +1,10 @@
 // Hydra Architect plugin for OpenCode
-// Resolves the active model profile, injects models and prompts into Hydra
-// agents, and exposes tools for profile management and Jev decision support.
+// Resolves the active model profile, assigns models to Hydra agents,
+// and exposes tools for profile management and Jev decision support.
+//
+// Orchestration logic now lives in the Hydra skill
+// (.opencode/skills/hydra/SKILL.md). This plugin only handles model
+// resolution and the Jev/profile tooling.
 
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
@@ -45,16 +49,6 @@ function findHydraRoot(directory) {
 
 function hydraPath(directory, ...rest) {
   return join(findHydraRoot(directory), ...rest);
-}
-
-function loadPrompt(root, filename) {
-  const path = join(root, "prompts", filename);
-  if (!existsSync(path)) return undefined;
-  try {
-    return readFileSync(path, "utf8");
-  } catch {
-    return undefined;
-  }
 }
 
 function runPython(directory, ...args) {
@@ -103,28 +97,6 @@ function applyResolvedProfile(cfg, resolved) {
   }
 }
 
-function applyPrompts(cfg, root) {
-  if (!cfg.agent) cfg.agent = {};
-
-  const main = loadPrompt(root, "orchestrator.md");
-  if (main && cfg.agent.hydra) {
-    cfg.agent.hydra.prompt = main;
-  }
-
-  const profileManager = loadPrompt(root, "profile-manager.md");
-  if (profileManager && cfg.agent["hydra-profile"]) {
-    cfg.agent["hydra-profile"].prompt = profileManager;
-  }
-
-  for (const role of ROLES) {
-    const agentName = role === "orchestrator" ? "hydra" : `hydra-${role}`;
-    const content = loadPrompt(root, `${role}.md`);
-    if (content && cfg.agent[agentName]) {
-      cfg.agent[agentName].prompt = content;
-    }
-  }
-}
-
 function getActiveName(directory) {
   const path = hydraPath(directory, "profiles", "active-profile.json");
   if (!existsSync(path)) return "default";
@@ -161,19 +133,11 @@ function formatDiff(diff) {
 
 export default async ({ directory }) => {
   let currentCfg = null;
-  let hydraRoot = null;
-
-  try {
-    hydraRoot = findHydraRoot(directory);
-  } catch {
-    hydraRoot = null;
-  }
 
   return {
     config: async (cfg) => {
       currentCfg = cfg;
       try {
-        if (hydraRoot) applyPrompts(cfg, hydraRoot);
         const resolved = runPython(directory, "--active");
         applyResolvedProfile(cfg, resolved);
       } catch (e) {
