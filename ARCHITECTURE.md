@@ -1,15 +1,14 @@
 # Hydra Architecture
 
-Hydra is a custom OpenCode workflow for running parallel-orchestrated coding
-agents. One primary agent decomposes a coding task into independent workstreams,
-fans them out to specialised subagents running on different models, and merges
-their results back through review and verification phases.
+Hydra is a custom OpenCode skill and agent workflow for running parallel-orchestrated coding agents. One primary agent decomposes a coding task into independent workstreams, fans them out to specialised subagents via the `task` tool, and merges their results back through review and verification phases.
 
-Hydra is installed as an OpenCode extension, either into a project's
-`.opencode/` directory or globally into `~/.config/opencode/`:
+The orchestration logic lives in the `hydra` skill (`SKILL.md`). The plugin no longer injects prompts; it only resolves model profiles and exposes the `hydra_profile`, `hydra_resolve`, and `hydra_jev` tools. Agent files are thin metadata stubs.
 
-- Entry point: `/hydra <task>`
+Hydra is installed as an OpenCode extension, either into a project's `.opencode/` directory or globally into `~/.config/opencode/`:
+
+- Entry points: `/hydra <task>` or select the `hydra` agent and describe a task
 - Control panel: `/hydra-profile <profile|show|diff>`
+- Skill: `.opencode/skills/hydra/SKILL.md`
 
 ---
 
@@ -57,9 +56,11 @@ subagents yourself.
 
 ## The ten-phase workflow
 
-The orchestrator prompt at
-`.opencode/agents/workflows/hydra/prompts/orchestrator.md` defines the flow.
-Phases marked **parallel** fan out into several subagent invocations at once.
+The orchestration logic is defined in the `hydra` skill
+(`.opencode/skills/hydra/SKILL.md`). Phases marked **parallel** fan out into
+several subagent invocations via the `task` tool. The skill enforces anti-loop
+guards: no recursive `/hydra` calls, a forward-only phase tracker, and a single
+invocation per subagent per phase.
 
 | # | Phase | Agents involved | Parallel | Purpose |
 |---|-------|-----------------|----------|---------|
@@ -241,11 +242,11 @@ flowchart TD
 
 ## Agent roster
 
-Every agent is a thin OpenCode agent file under `.opencode/agents/`. Each one
-just reads its own prompt file from
-`.opencode/agents/workflows/hydra/prompts/` and follows it. That separation is
-deliberate: the agent file holds OpenCode metadata (name, mode, permissions),
-the prompt file holds the behaviour.
+Every agent is a thin OpenCode agent file under `.opencode/agents/`. The agent
+file holds OpenCode metadata (name, mode, permissions, model). The full
+orchestration behaviour lives in the `hydra` skill; the agent file itself
+contains a short anchor that points to the skill and restates the hard rules
+(never recurse, delegate only via `task`, advance phases forward only).
 
 ### Entry points
 
@@ -442,8 +443,9 @@ Merging is field-wise, not wholesale:
 
 ## Plugin and tools
 
-`.opencode/plugins/hydra.js` is registered in `.opencode/opencode.json` next to
-the existing graphify plugin. It does three things.
+`.opencode/plugins/hydra.js` is registered in `.opencode/opencode.json`. It no
+longer injects prompts (the `hydra` skill provides orchestration instructions);
+it only resolves model profiles and exposes tooling.
 
 ### 1. Injects models at startup
 
@@ -619,9 +621,9 @@ calls the `hydra_profile` tool.
 
 ```text
 <opencode-config>/   # e.g. ./.opencode/ or ~/.config/opencode/
-├── opencode.json                       # registers graphify.js + hydra.js
+├── opencode.json                       # registers graphify.js + hydra.js + skills.paths
 ├── agents/
-│   ├── hydra.md                        # primary orchestrator
+│   ├── hydra.md                        # primary orchestrator (thin prompt + skill anchor)
 │   ├── hydra-profile.md                # /hydra-profile handler
 │   ├── hydra-explorer.md               # role stubs (metadata only)
 │   ├── hydra-researcher.md
@@ -646,8 +648,8 @@ calls the `hydra_profile` tool.
 │           │   ├── free.json
 │           │   ├── max-quality.json
 │           │   └── free-week.json
-│           ├── prompts/
-│           │   ├── orchestrator.md      # the ten-phase flow
+│           ├── prompts/                # reference copies; not loaded at runtime
+│           │   ├── orchestrator.md
 │           │   ├── explorer.md
 │           │   ├── researcher.md
 │           │   ├── test-scout.md
@@ -664,9 +666,12 @@ calls the `hydra_profile` tool.
 ├── commands/
 │   ├── hydra.md                        # /hydra <task>
 │   └── hydra-profile.md                # /hydra-profile <profile|show|diff>
-└── plugins/
-    ├── graphify.js
-    └── hydra.js
+├── plugins/
+│   ├── graphify.js
+│   └── hydra.js                        # profile resolution + Jev tooling
+└── skills/
+    └── hydra/
+        └── SKILL.md                    # full orchestration logic + anti-loop guards
 ```
 
 ### Useful manual commands
@@ -707,12 +712,11 @@ python3 .opencode/agents/workflows/hydra/scripts/jev.py \
 ### Add a role
 
 1. Create `.opencode/agents/hydra-<role>.md` with the metadata frontmatter.
-2. Create the matching prompt in `.opencode/agents/workflows/hydra/prompts/`.
+2. Add the role's task contract to `.opencode/skills/hydra/SKILL.md`.
 3. Add the role to the `ROLES` array in `.opencode/plugins/hydra.js`.
 4. Add the role to **every** profile's `roles` map. The resolver fails on a
    missing role, which is what stops a new role from silently inheriting a paid
    model in the `free` profile.
-5. Reference the new role from `prompts/orchestrator.md`.
 
 ### Add a profile
 

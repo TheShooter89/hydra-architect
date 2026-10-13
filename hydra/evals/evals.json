@@ -1,0 +1,23 @@
+{
+  "skill_name": "hydra",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Add a --dry-run flag to the stow playbook",
+      "expected_output": "Hydra completes all 10 phases, produces a final synthesis, and the implementer adds a --dry-run flag with tests.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Refactor the profile resolver to cache resolved profiles on disk",
+      "expected_output": "Hydra explores the resolver, produces candidate designs, and implements a disk cache with tests without breaking existing profiles.",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Investigate why the Hydra workflow gets stuck in an infinite loop",
+      "expected_output": "Hydra diagnoses the loop cause, reports it, and does not itself loop or recurse.",
+      "files": []
+    }
+  ]
+}

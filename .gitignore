@@ -4,3 +4,5 @@ package.json
 package-lock.json
 npm-debug.log*
 .omo/
+__pycache__/
+*.pyc

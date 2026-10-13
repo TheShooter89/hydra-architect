@@ -85,6 +85,7 @@ rm -f "$BASE/commands/hydra.md"
 rm -f "$BASE/commands/hydra-profile.md"
 rm -f "$BASE/plugins/hydra.js"
 rm -rf "$BASE/agents/workflows/hydra"
+rm -rf "$BASE/skills/hydra"
 
 # Unregister the plugin from opencode.json.
 OPENCODE_JSON="$BASE/opencode.json"
@@ -96,6 +97,24 @@ const cfg = JSON.parse(fs.readFileSync(path, "utf8"));
 cfg.plugin = (cfg.plugin || []).filter(p => p !== ".opencode/plugins/hydra.js");
 fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
 ' "$OPENCODE_JSON"
+fi
+
+# Unregister the Hydra skill path from opencode.json.
+if [[ -f "$OPENCODE_JSON" ]]; then
+  node -e '
+const fs = require("fs");
+const path = process.argv[1];
+const mode = process.argv[2];
+const cfg = JSON.parse(fs.readFileSync(path, "utf8"));
+if (cfg.skills && Array.isArray(cfg.skills.paths)) {
+  const skillPath = mode === "global" ? "~/.config/opencode/skills" : ".opencode/skills";
+  cfg.skills.paths = cfg.skills.paths.filter(p => p !== skillPath);
+  if (cfg.skills.paths.length === 0 && Object.keys(cfg.skills).length === 1) {
+    delete cfg.skills;
+  }
+}
+fs.writeFileSync(path, JSON.stringify(cfg, null, 2) + "\n");
+' "$OPENCODE_JSON" "$MODE"
 fi
 
 echo "${HYDRA_NAME} removed from ${BASE}"
